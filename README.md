@@ -1,2 +1,1 @@
-# scrapy-app
 # gofkass
