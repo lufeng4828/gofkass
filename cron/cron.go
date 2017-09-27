@@ -180,14 +180,14 @@ func (c *Cron) run() {
 					break
 				}
 				job := e.Job
-				beego.Error("开始调度JOB:", job.String())
+				beego.Info("开始调度JOB:", job.String())
 				go func() {
 					fail := true
 					var res map[string]interface{}
 					for i := 0; i <= job.GetRetry() && fail; i++ {
-						beego.Error("开始执行JOB:", job.String())
+						beego.Info("开始执行JOB:", job.String())
 						res = job.Run()
-						beego.Error(job.String(), "执行结果:", res["err"], res["isTimeout"])
+						beego.Info(job.String(), "执行结果:", res["stdout"], "err=", res[""], "isTimeout=", res["isTimeout"])
 						if res["err"] == nil {
 							fail = false
 						}else{
