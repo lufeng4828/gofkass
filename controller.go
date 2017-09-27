@@ -4,9 +4,12 @@ import (
 	"os"
 	"fmt"
 	"time"
+	"reflect"
 	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/bitly/go-simplejson"
+	"github.com/astaxie/beego/utils"
+	"strings"
 )
 
 type BaseController struct {
@@ -166,4 +169,24 @@ func (c *BaseController) Check() {
 func (c *BaseController) Version() {
 	version := os.Getenv("FAAS_VERSION")
 	c.Stringfy(string(version))
+}
+
+var exceptMethod = []string{"Init", "Prepare", "Finish", "Render", "RenderString",
+	"RenderBytes", "Redirect", "Abort", "StopRun", "UrlFor", "ServeJSON", "ServeJSONP",
+	"ServeXML", "Input", "ParseForm", "GetString", "GetStrings", "GetInt", "GetBool",
+	"GetFloat", "GetFile", "SaveToFile", "StartSession", "SetSession", "GetSession",
+	"DelSession", "SessionRegenerateID", "DestroySession", "IsAjax", "GetSecureCookie",
+	"SetSecureCookie", "XsrfToken", "CheckXsrfCookie", "XsrfFormHtml",
+	"GetControllerAndAction", "ServeFormatted"}
+
+func (c *BaseController) Route() {
+	routers := []string{}
+	reflectVal := reflect.ValueOf(c)
+	rt := reflectVal.Type()
+	for i := 0; i < rt.NumMethod(); i++ {
+		if !utils.InSlice(rt.Method(i).Name, exceptMethod) {
+			routers = append(routers, fmt.Sprintf("/%s", strings.ToLower(rt.Method(i).Name)))
+		}
+	}
+	c.Stringfy(strings.Join(routers, "\n"))
 }
