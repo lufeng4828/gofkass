@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"order-app/app/utils"
 	"os"
 )
 
@@ -98,7 +97,7 @@ func (c *WebServ) Call(resource string, contentType string, body map[string]inte
 	} else {
 		query := url.Values{}
 		for key, value := range body {
-			if str, err := utils.I2String(value); err == nil {
+			if str, err := I2String(value); err == nil {
 				query.Add(key, str)
 			}
 

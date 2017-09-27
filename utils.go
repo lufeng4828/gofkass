@@ -2,6 +2,7 @@ package gofkass
 
 import (
 	"fmt"
+	"errors"
 	"encoding/json"
 )
 
@@ -18,4 +19,11 @@ func FromJson(data string) (map[string]interface{}, error) {
 	variable := make(map[string]interface{})
 	err := json.Unmarshal([]byte(data), &variable)
 	return variable, err
+}
+
+func I2String(data interface{}) (string, error) {
+	if a, ok := (data).(string); ok {
+		return a, nil
+	}
+	return "", errors.New("type assertion to string failed")
 }
