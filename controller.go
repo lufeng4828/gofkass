@@ -4,12 +4,9 @@ import (
 	"os"
 	"fmt"
 	"time"
-	"reflect"
 	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/bitly/go-simplejson"
-	"github.com/astaxie/beego/utils"
-	"strings"
 )
 
 type BaseController struct {
