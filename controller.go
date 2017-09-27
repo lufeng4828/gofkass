@@ -1,4 +1,4 @@
-package kfaas
+package gofkass
 
 import (
 	"os"
