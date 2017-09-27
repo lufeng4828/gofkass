@@ -5,7 +5,7 @@ package cron
 import (
 	"sort"
 	"time"
-	"github.com/lufeng4828/beego"
+	"github.com/astaxie/beego"
 )
 
 // 删除job的检查函数，返回true则删除
