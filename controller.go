@@ -4,13 +4,17 @@ import (
 	"os"
 	"fmt"
 	"time"
+	"io/ioutil"
+	"path/filepath"
 	"encoding/json"
+	"github.com/ghodss/yaml"
 	"github.com/astaxie/beego"
 	"github.com/bitly/go-simplejson"
 )
 
 type BaseController struct {
 	beego.Controller
+	AppPath string
 	JsonData *simplejson.Json
 }
 
@@ -169,4 +173,16 @@ func (c *BaseController) Check() {
 func (c *BaseController) Version() {
 	version := os.Getenv("FAAS_VERSION")
 	c.Stringfy(string(version))
+}
+
+func (c *BaseController) Desc() {
+	fileName := filepath.Join(beego.AppPath, "desc.yaml")
+	file, err := os.Open(fileName)
+	result := make(map[string]interface{})
+	if err != nil {
+		c.jsonResult(result)
+	}
+	content, _ := ioutil.ReadAll(file)
+	yaml.Unmarshal(content, &result)
+	c.jsonResult(result)
 }
