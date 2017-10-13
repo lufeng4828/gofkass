@@ -92,9 +92,12 @@ func (b *BaseController) Jstring(key string, def ...string) string {
 	return value
 }
 
-func (b *BaseController) Jmap(key string) map[string]interface{} {
+func (b *BaseController) Jmap(key string, def ...map[string]interface{}) map[string]interface{} {
 	if m, err := b.JsonData.Get(key).Map(); err == nil {
 		return m
+	}
+	if len(def) > 0{
+		return def[0]
 	}
 	return map[string]interface{}{}
 }
