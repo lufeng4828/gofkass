@@ -4,17 +4,13 @@ import (
 	"os"
 	"fmt"
 	"time"
-	"io/ioutil"
-	"path/filepath"
 	"encoding/json"
-	"github.com/ghodss/yaml"
 	"github.com/astaxie/beego"
 	"github.com/bitly/go-simplejson"
 )
 
 type BaseController struct {
 	beego.Controller
-	AppPath string
 	JsonData *simplejson.Json
 }
 
@@ -92,9 +88,12 @@ func (b *BaseController) Jstring(key string, def ...string) string {
 	return value
 }
 
-func (b *BaseController) Jmap(key string) map[string]interface{} {
+func (b *BaseController) Jmap(key string, def ...map[string]interface{}) map[string]interface{} {
 	if m, err := b.JsonData.Get(key).Map(); err == nil {
 		return m
+	}
+	if len(def) > 0 {
+		return def[0]
 	}
 	return map[string]interface{}{}
 }
@@ -172,14 +171,22 @@ func (c *BaseController) Version() {
 	c.Stringfy(string(version))
 }
 
-func (c *BaseController) Desc() {
-	fileName := filepath.Join(beego.AppPath, "desc.yaml")
-	file, err := os.Open(fileName)
-	result := make(map[string]interface{})
-	if err != nil {
-		c.jsonResult(result)
+var exceptMethod = []string{"Init", "Prepare", "Finish", "Render", "RenderString",
+	"RenderBytes", "Redirect", "Abort", "StopRun", "UrlFor", "ServeJSON", "ServeJSONP",
+	"ServeXML", "Input", "ParseForm", "GetString", "GetStrings", "GetInt", "GetBool",
+	"GetFloat", "GetFile", "SaveToFile", "StartSession", "SetSession", "GetSession",
+	"DelSession", "SessionRegenerateID", "DestroySession", "IsAjax", "GetSecureCookie",
+	"SetSecureCookie", "XsrfToken", "CheckXsrfCookie", "XsrfFormHtml",
+	"GetControllerAndAction", "ServeFormatted"}
+
+func (c *BaseController) Route() {
+	routers := []string{}
+	reflectVal := reflect.ValueOf(c)
+	rt := reflectVal.Type()
+	for i := 0; i < rt.NumMethod(); i++ {
+		if !utils.InSlice(rt.Method(i).Name, exceptMethod) {
+			routers = append(routers, fmt.Sprintf("/%s", strings.ToLower(rt.Method(i).Name)))
+		}
 	}
-	content, _ := ioutil.ReadAll(file)
-	yaml.Unmarshal(content, &result)
-	c.jsonResult(result)
+	c.Stringfy(strings.Join(routers, "\n"))
 }
