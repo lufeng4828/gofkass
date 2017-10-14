@@ -112,6 +112,17 @@ func (b *BaseController) JstringArray(key string, def ...[]string) []string {
 	return value
 }
 
+func (b *BaseController) JArray(key string, def ...[]interface{}) []interface{} {
+
+	value, err := b.JsonData.Get(key).Array()
+	if err != nil || len(value) == 0 {
+		if len(def) > 0 {
+			return def[0]
+		}
+	}
+	return value
+}
+
 func (b *BaseController) JTime(key string, def ...time.Time) time.Time {
 	if !b.Jexist(b.JsonData, key) && len(def) > 0 {
 		return def[0]
