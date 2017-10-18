@@ -194,6 +194,7 @@ func (c *BaseController) Desc() {
 		c.jsonResult(result)
 	}
 	content, _ := ioutil.ReadAll(file)
+	file.Close()
 	yaml.Unmarshal(content, &result)
 	c.jsonResult(result)
 }
