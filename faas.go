@@ -18,7 +18,7 @@ type FaasQueue struct {
 	Text   string
 	Type   string
 	Pipe   func(*requests.Response, map[string]interface{}) map[string]interface{}
-	Func   func(name string, text string, kwargs map[string]interface{}) (*requests.Response, error)
+	Func   func(name string, text string, kwargs map[string]interface{}, httpclient ...http.Client) (*requests.Response, error)
 }
 
 type Faas struct {
@@ -50,7 +50,7 @@ func NewFaas(faasArgs ...interface{}) *Faas {
 	return faas
 }
 
-func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*requests.Response, error) {
+func (c *Faas) call(name string, text string, kwargs map[string]interface{}, httpclient ...http.Client) (*requests.Response, error) {
 	url := fmt.Sprintf("http://%s:%d/function/%s", c.Service, c.Port, name)
 	bodyType := "application/json"
 	buf := new(bytes.Buffer)
@@ -60,11 +60,15 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 	} else {
 		buf.Write(I2bytes(kwargs))
 	}
-
-	client := http.Client{
-		Transport: &http.Transport{
-			DisableKeepAlives: true,
-		},
+	var client http.Client
+	if len(httpclient) == 0 {
+		client = http.Client{
+			Transport: &http.Transport{
+				DisableKeepAlives: true,
+			},
+		}
+	} else {
+		client = httpclient[0]
 	}
 	request, _ := http.NewRequest("POST", url, buf)
 	request.Header.Set("Content-Type", bodyType)
@@ -91,7 +95,7 @@ func (c *Faas) Pipe(f func(*requests.Response, map[string]interface{}) map[strin
 	return c
 }
 
-func (c *Faas) Get() (*requests.Response, error) {
+func (c *Faas) Get(httpclient ...http.Client) (*requests.Response, error) {
 	var result interface{}
 	var err error
 	for _, item := range c.Queue {
@@ -107,7 +111,7 @@ func (c *Faas) Get() (*requests.Response, error) {
 					println("merge Demand map error:", err.Error())
 				}
 			}
-			result, err = item.Func(item.Name, item.Text, kwargs)
+			result, err = item.Func(item.Name, item.Text, kwargs, httpclient...)
 			if err != nil {
 				log.Println(err.Error())
 			}
