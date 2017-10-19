@@ -74,8 +74,10 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 			resp.Body.Close()
 		}
 	}()
+	if err != nil {
+		return &requests.Response{}, err
+	}
 	response := requests.Response{Response: resp}
-
 	return &response, err
 }
 
