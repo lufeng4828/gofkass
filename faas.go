@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"bytes"
 	"strings"
+	"github.com/astaxie/beego"
 )
 
 type FaasQueue struct {
@@ -75,6 +76,7 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 		}
 	}()
 	if err != nil {
+		beego.Error(err.Error())
 		return &requests.Response{}, err
 	}
 	response := requests.Response{Response: resp}
