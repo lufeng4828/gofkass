@@ -5,10 +5,10 @@ import (
 	"log"
 	"strconv"
 	"net/http"
+	"github.com/astaxie/beego/httplib"
 	"github.com/imdario/mergo"
 	"github.com/jochasinga/requests"
 	"fmt"
-	"bytes"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ type FaasQueue struct {
 	Text   string
 	Type   string
 	Pipe   func(*requests.Response, map[string]interface{}) map[string]interface{}
-	Func   func(name string, text string, kwargs map[string]interface{}, httpclient ...http.Client) (*requests.Response, error)
+	Func   func(name string, text string, kwargs map[string]interface{}) (*requests.Response, error)
 }
 
 type Faas struct {
@@ -50,32 +50,18 @@ func NewFaas(faasArgs ...interface{}) *Faas {
 	return faas
 }
 
-func (c *Faas) call(name string, text string, kwargs map[string]interface{}, httpclient ...http.Client) (*requests.Response, error) {
+func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*requests.Response, error) {
 	url := fmt.Sprintf("http://%s:%d/function/%s", c.Service, c.Port, name)
 	bodyType := "application/json"
-	buf := new(bytes.Buffer)
+	req := httplib.Post(url)
 	if len(text) > 0 {
-		buf.Write([]byte(text))
+		req.Body(text)
 		bodyType = "application/x-www-form-urlencoded"
 	} else {
-		buf.Write(I2bytes(kwargs))
+		req.JSONBody(kwargs)
 	}
-	var client http.Client
-	if len(httpclient) == 0 {
-		client = http.Client{
-			Transport: &http.Transport{
-				DisableKeepAlives: true,
-			},
-		}
-	} else {
-		client = httpclient[0]
-	}
-	request, _ := http.NewRequest("POST", url, buf)
-	request.Header.Set("Content-Type", bodyType)
-	resp, err := client.Do(request)
-	if err != nil {
-		return &requests.Response{}, err
-	}
+	req.Header("Content-Type", bodyType)
+	resp, err := req.Response()
 	response := requests.Response{Response: resp}
 	return &response, err
 }
@@ -111,7 +97,7 @@ func (c *Faas) Get(httpclient ...http.Client) (*requests.Response, error) {
 					println("merge Demand map error:", err.Error())
 				}
 			}
-			result, err = item.Func(item.Name, item.Text, kwargs, httpclient...)
+			result, err = item.Func(item.Name, item.Text, kwargs)
 			if err != nil {
 				log.Println(err.Error())
 			}
