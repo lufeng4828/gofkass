@@ -70,13 +70,7 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 	request, _ := http.NewRequest("POST", url, buf)
 	request.Header.Set("Content-Type", bodyType)
 	resp, err := client.Do(request)
-	defer func() {
-		if resp != nil{
-			resp.Body.Close()
-		}
-	}()
 	if err != nil {
-		beego.Error(err.Error())
 		return &requests.Response{}, err
 	}
 	response := requests.Response{Response: resp}
