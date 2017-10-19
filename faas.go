@@ -3,8 +3,6 @@ package gofkass
 import (
 	"os"
 	"log"
-	"net"
-	"time"
 	"strconv"
 	"net/http"
 	"github.com/imdario/mergo"
@@ -65,20 +63,19 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 
 	client := http.Client{
 		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   3 * time.Second,
-				KeepAlive: 0,
-			}).DialContext,
-			MaxIdleConns:          1,
-			DisableKeepAlives:     true,
-			IdleConnTimeout:       120 * time.Millisecond,
-			ExpectContinueTimeout: 1500 * time.Millisecond,
+			DisableKeepAlives: true,
 		},
 	}
 	request, _ := http.NewRequest("POST", url, buf)
 	request.Header.Set("Content-Type", bodyType)
 	resp, err := client.Do(request)
+	defer func() {
+		if resp != nil{
+			resp.Body.Close()
+		}
+	}()
 	response := requests.Response{Response: resp}
+
 	return &response, err
 }
 
