@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"bytes"
 	"strings"
-	"github.com/astaxie/beego"
 )
 
 type FaasQueue struct {
