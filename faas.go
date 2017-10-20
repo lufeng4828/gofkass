@@ -16,7 +16,7 @@ type FaasQueue struct {
 	Text   string
 	Type   string
 	Pipe   func(*httplib.BeegoHTTPRequest, map[string]interface{}) map[string]interface{}
-	Func   func(name string, text string, kwargs map[string]interface{}) (*httplib.BeegoHTTPRequest, error)
+	Func   func(name string, text string, kwargs map[string]interface{}) *httplib.BeegoHTTPRequest
 }
 
 type Faas struct {
