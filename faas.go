@@ -93,10 +93,7 @@ func (c *Faas) Get() (*httplib.BeegoHTTPRequest, error) {
 					println("merge Demand map error:", err.Error())
 				}
 			}
-			result, err = item.Func(item.Name, item.Text, kwargs)
-			if err != nil {
-				log.Println(err.Error())
-			}
+			result = item.Func(item.Name, item.Text, kwargs)
 		case "pipe":
 			kv, ok := result.(*httplib.BeegoHTTPRequest)
 			if ok {
