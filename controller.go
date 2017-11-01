@@ -21,7 +21,6 @@ type BaseController struct {
 func (c *BaseController) jsonResult(out interface{}) {
 	c.Data["json"] = out
 	c.ServeJSON()
-	c.StopRun()
 }
 
 func (c *BaseController) IsPost() bool {
