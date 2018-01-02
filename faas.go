@@ -4,10 +4,8 @@ import (
 	"os"
 	"log"
 	"strconv"
-	"net/http"
 	"github.com/astaxie/beego/httplib"
 	"github.com/imdario/mergo"
-	"github.com/jochasinga/requests"
 	"fmt"
 	"strings"
 )
@@ -17,8 +15,8 @@ type FaasQueue struct {
 	Kwargs map[string]interface{}
 	Text   string
 	Type   string
-	Pipe   func(*requests.Response, map[string]interface{}) map[string]interface{}
-	Func   func(name string, text string, kwargs map[string]interface{}) (*requests.Response, error)
+	Pipe   func(*httplib.BeegoHTTPRequest, map[string]interface{}) map[string]interface{}
+	Func   func(name string, text string, kwargs map[string]interface{}) (*httplib.BeegoHTTPRequest, error)
 }
 
 type Faas struct {
@@ -50,7 +48,7 @@ func NewFaas(faasArgs ...interface{}) *Faas {
 	return faas
 }
 
-func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*requests.Response, error) {
+func (c *Faas) call(name string, text string, kwargs map[string]interface{}) *httplib.BeegoHTTPRequest {
 	url := fmt.Sprintf("http://%s:%d/function/%s", c.Service, c.Port, name)
 	bodyType := "application/json"
 	req := httplib.Post(url)
@@ -61,9 +59,7 @@ func (c *Faas) call(name string, text string, kwargs map[string]interface{}) (*r
 		req.JSONBody(kwargs)
 	}
 	req.Header("Content-Type", bodyType)
-	resp, err := req.Response()
-	response := requests.Response{Response: resp}
-	return &response, err
+	return req
 }
 
 func (c *Faas) Serv(name string, text string, kwargs map[string]interface{}) *Faas {
@@ -72,7 +68,7 @@ func (c *Faas) Serv(name string, text string, kwargs map[string]interface{}) *Fa
 	return c
 }
 
-func (c *Faas) Pipe(f func(*requests.Response, map[string]interface{}) map[string]interface{}, kwargs map[string]interface{}) *Faas {
+func (c *Faas) Pipe(f func(*httplib.BeegoHTTPRequest, map[string]interface{}) map[string]interface{}, kwargs map[string]interface{}) *Faas {
 	if len(c.Queue) == 0 || c.Queue[len(c.Queue)-1].Type != "func" {
 		log.Println("Pipe must be called after a Serv")
 		return nil
@@ -81,7 +77,7 @@ func (c *Faas) Pipe(f func(*requests.Response, map[string]interface{}) map[strin
 	return c
 }
 
-func (c *Faas) Get(httpclient ...http.Client) (*requests.Response, error) {
+func (c *Faas) Get() (*httplib.BeegoHTTPRequest, error) {
 	var result interface{}
 	var err error
 	for _, item := range c.Queue {
@@ -102,7 +98,7 @@ func (c *Faas) Get(httpclient ...http.Client) (*requests.Response, error) {
 				log.Println(err.Error())
 			}
 		case "pipe":
-			kv, ok := result.(*requests.Response)
+			kv, ok := result.(*httplib.BeegoHTTPRequest)
 			if ok {
 				result = item.Pipe(kv, item.Kwargs)
 			} else {
@@ -110,6 +106,6 @@ func (c *Faas) Get(httpclient ...http.Client) (*requests.Response, error) {
 			}
 		}
 	}
-	kv, _ := result.(*requests.Response)
+	kv, _ := result.(*httplib.BeegoHTTPRequest)
 	return kv, nil
 }
