@@ -16,7 +16,7 @@ type FaasQueue struct {
 	Text   string
 	Type   string
 	Pipe   func(*httplib.BeegoHTTPRequest, map[string]interface{}) map[string]interface{}
-	Func   func(name string, text string, kwargs map[string]interface{}) (*httplib.BeegoHTTPRequest, error)
+	Func   func(name string, text string, kwargs map[string]interface{}) *httplib.BeegoHTTPRequest
 }
 
 type Faas struct {
@@ -93,10 +93,7 @@ func (c *Faas) Get() (*httplib.BeegoHTTPRequest, error) {
 					println("merge Demand map error:", err.Error())
 				}
 			}
-			result, err = item.Func(item.Name, item.Text, kwargs)
-			if err != nil {
-				log.Println(err.Error())
-			}
+			result = item.Func(item.Name, item.Text, kwargs)
 		case "pipe":
 			kv, ok := result.(*httplib.BeegoHTTPRequest)
 			if ok {
