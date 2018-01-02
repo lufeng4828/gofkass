@@ -10,9 +10,11 @@ type Boostrap struct {
 }
 
 func GetBoostrap() *Boostrap{
+	println("get boostrap", boostrap)
 	return boostrap
 }
 
 func SetBoostrap(boostrap_ *Boostrap){
 	boostrap = boostrap_
+	println("set boostrap", boostrap)
 }
