@@ -13,6 +13,6 @@ func GetBoostrap() *Boostrap{
 	return boostrap
 }
 
-func SetBoostrap(boostrap *Boostrap){
-	boostrap = boostrap
+func SetBoostrap(boostrap_ *Boostrap){
+	boostrap = boostrap_
 }
