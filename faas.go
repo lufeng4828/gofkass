@@ -4,7 +4,7 @@ import (
 	"os"
 	"log"
 	"strconv"
-	"github.com/astaxie/beego/httplib"
+	"github.com/lufeng4828/beego/httplib"
 	"github.com/imdario/mergo"
 	"fmt"
 	"strings"

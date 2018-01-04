@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"encoding/json"
 	"github.com/ghodss/yaml"
-	"github.com/astaxie/beego"
+	"github.com/lufeng4828/beego"
 	"github.com/bitly/go-simplejson"
 )
 

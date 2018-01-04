@@ -3,8 +3,8 @@ package gofkass
 import (
 	"time"
 	"github.com/bitly/go-simplejson"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/httplib"
+	"github.com/lufeng4828/beego"
+	"github.com/lufeng4828/beego/httplib"
 	"fmt"
 	"net/url"
 	"strings"
